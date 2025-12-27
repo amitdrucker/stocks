@@ -1,0 +1,18 @@
+i'm a swing trader in swings of a month.
+I check my stocks daily when the market is closed. i do not intervene in the middle of a trade day
+
+i've attached a json of stocks investments:
+1. all my current positions including active orders on them (stop loss/limit)
+
+3. interesting_symbols - symbols i'm following but not in my portfolio
+4. cash_usd - my free cash to invest
+
+
+I would like you to:
+1. make sure that stop loss covers all quantity of stocks except for small (1-3 stocks) position - for the full amount
+2. i don't have stop loss for un-opened positions
+3. check technicals of EACH symbol provided both in positions and in interesting_symbols - don't skip any symbol!
+4. based on technical analysis (candles, volume, volume_profile, rsi, macd, SMAs) offer adjustments to my portfolio: buy/sell/adjust stop loss/add price alert
+4.1. for every new buy - add buy price range and stop loss. the buy price range should include the stop price and then the limit price for ideal entry
+4.2. result should be in a neat table of actions and explanation
+4.3. I would like you to make the minimal actions. if an action is not significant don't offer it
