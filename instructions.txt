@@ -15,4 +15,3 @@ I would like you to:
 4. based on technical analysis (candles, volume, volume_profile, rsi, macd, SMAs) offer adjustments to my portfolio: buy/sell/adjust stop loss/add price alert
 4.1. for every new buy - add buy price range and stop loss. the buy price range should include the stop price and then the limit price for ideal entry
 4.2. result should be in a neat table of actions and explanation
-4.3. I would like you to make the minimal actions. if an action is not significant don't offer it
