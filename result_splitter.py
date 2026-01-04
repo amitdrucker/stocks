@@ -1,17 +1,9 @@
 import json
 
+from stocks_data import get_technical_analysis_json
+
 
 def split_portfolio_data(data):
-    # ---------------------------------------------------------
-    # PART 1: SAVE CASH JSON
-    # ---------------------------------------------------------
-    cash_data = {
-        "cash_usd": data.get("cash_usd", 0.0)
-    }
-
-    with open("output/cash_data.json", "w") as f:
-        json.dump(cash_data, f, indent=4)
-    print(f"Successfully created: cash_data.json (Cash: ${cash_data['cash_usd']:,.2f})")
 
     # ---------------------------------------------------------
     # PART 2: SAVE PER-TICKER JSONs
@@ -36,6 +28,7 @@ def split_portfolio_data(data):
     all_symbols.update(positions_map.keys())
     all_symbols.update(technical_map.keys())
     all_symbols.update(orders_map.keys())
+    all_symbols.update(data.get('interesting_symbols'))
 
     print(f"Found {len(all_symbols)} unique symbols. Splitting files...")
 
@@ -53,11 +46,12 @@ def split_portfolio_data(data):
 
         # 4. Construct the per-ticker object
         ticker_obj = {
+            "free_cash": data.get("cash_usd", 0.0),
             "symbol": sym,
             "shares": shares,
             "avg_cost": avg_cost,
             "open_orders": sym_orders,
-            "technical_data": tech_data
+            "technical_data": get_technical_analysis_json([sym])[0]
         }
 
         # 5. Save to file

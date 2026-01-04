@@ -48,10 +48,10 @@ def get_technical_analysis_json(tickers):
             df['RSI'] = ta.momentum.RSIIndicator(df['Close'], window=14).rsi()
 
             # SMAs
+            df['SMA_20'] = ta.trend.SMAIndicator(df['Close'], window=20).sma_indicator()
             df['SMA_50'] = ta.trend.SMAIndicator(df['Close'], window=50).sma_indicator()
             df['SMA_100'] = ta.trend.SMAIndicator(df['Close'], window=100).sma_indicator()
             df['SMA_150'] = ta.trend.SMAIndicator(df['Close'], window=150).sma_indicator()
-            df['SMA_200'] = ta.trend.SMAIndicator(df['Close'], window=200).sma_indicator()
 
             # MACD
             macd = ta.trend.MACD(df['Close'])
@@ -97,22 +97,36 @@ def get_technical_analysis_json(tickers):
             # Slice the last 90 candles for the daily data output
             output_df = df.tail(90).copy()
 
-            # Convert daily candles dataframe to a dictionary keyed by Date
+            # Convert daily candles dataframe to a dictionary keyed by Date with only the Close price
             candles_dict = {}
             for index, row in output_df.iterrows():
-                # Handle potentially missing values (NaN) for JSON compliance
-                row_data = row.to_dict()
-                cleaned_row = {k: (None if pd.isna(v) else v) for k, v in row_data.items()}
-
+                close = row.get('Close', None)
+                close_val = None if pd.isna(close) else float(close)
                 date_str = index.strftime('%Y-%m-%d')
-                candles_dict[date_str] = cleaned_row
+                candles_dict[date_str] = close_val
 
             # 5. FINAL OBJECT
             ticker_data = {
                 "ticker": ticker,
                 "last_updated": datetime.now().isoformat(),
                 "daily_candles": candles_dict,
-                "volume_profile": volume_profile_list
+                "volume_profile": volume_profile_list,
+                'rsi': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                        output_df['RSI'].items()},
+                'sma20': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                          output_df['SMA_20'].items()},
+                'sma50': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                          output_df['SMA_50'].items()},
+                'sma100': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                           output_df['SMA_100'].items()},
+                'sma150': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                           output_df['SMA_150'].items()},
+                'macd': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                         output_df['MACD'].items()},
+                'macd_signal': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                                output_df['MACD_Signal'].items()},
+                'macd_hist': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                              output_df['MACD_Hist'].items()}
             }
 
             all_results.append(ticker_data)

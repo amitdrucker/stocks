@@ -1,0 +1,56 @@
+import json
+import os
+
+from google import genai
+from google.genai import types
+
+# 1. Setup API Key (Best practice: use environment variable, or paste here for testing)
+API_KEY = open('../api_key', 'r').read().strip()
+client = genai.Client(
+        api_key=API_KEY,
+        http_options=types.HttpOptions(api_version="v1beta")  # Force beta version
+    )
+
+
+def analyze_stock(json_file_path):
+    # Use v1beta if the model isn't found on the stable v1 endpoint
+
+    # 2. Load your Stock Data
+    try:
+        with open(json_file_path, 'r') as f:
+            stock_data = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: File not found at {json_file_path}")
+        return
+
+    symbol = stock_data.get('symbol', 'Unknown')
+
+    # 3. Construct the Prompt
+    # We embed the instructions and the JSON data into one clear message
+    prompt = f"""
+    I am a swing trader with a 1-month horizon. I check stocks daily at market close.
+    Please analyze the technical data in the JSON below following these rules:
+    
+    1. Audit my current position.
+    2. Review my Stop Loss (ensure it covers the full position)
+    3. Advise on my Free Cash usage (only buy if trend is confirmed).
+    4. Provide a neat table of actions.
+    
+    Stock Data JSON:
+    {json.dumps(stock_data, indent=2)}
+    """
+
+    # 4. Send to Gemini
+    try:
+        print(f"Analyzing {symbol}...")
+        response = client.models.generate_content(
+            model="gemini-3-flash-preview",
+            contents=prompt
+        )
+        # save response to gemini_output\{stock}-advice.txt
+        file_path = os.path.join("gemini_output", f"{symbol}-advice.txt")
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(response.text)
+
+    except Exception as e:
+        print(f"API Error: {e}")
