@@ -44,7 +44,7 @@ def merge_gemini_outputs_and_create_table():
     prompt = f"""
 You are given multiple Gemini analysis outputs below. Merge them and produce a single simple actions table with columns: symbol, action, reason.
 Rules:
-- BUY cannot exceed my current cash flow. (after SELLs). if exceeds - try to rank by confidence and suggest partial buys up to my budget.
+- BUY cannot exceed my current cash flow. (after SELLs). if exceeds - use the confidence score of each BUY (10 is highest) and suggest partial buys up to my budget.
 - One row per symbol.
 - Action should be like: Buy, Fix Stop Loss, Add Stop Loss, Hold, Sell, Reduce, Close - and include quantity and price if applicable.
 - Output in a text table format.

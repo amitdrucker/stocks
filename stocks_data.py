@@ -97,13 +97,15 @@ def get_technical_analysis_json(tickers):
             # Slice the last 90 candles for the daily data output
             output_df = df.tail(90).copy()
 
-            # Convert daily candles dataframe to a dictionary keyed by Date with only the Close price
+            # Convert daily candles dataframe to a dictionary keyed by Date
             candles_dict = {}
             for index, row in output_df.iterrows():
-                close = row.get('Close', None)
-                close_val = None if pd.isna(close) else float(close)
+                # Handle potentially missing values (NaN) for JSON compliance
+                row_data = row.to_dict()
+                cleaned_row = {k: (None if pd.isna(v) else v) for k, v in row_data.items()}
+
                 date_str = index.strftime('%Y-%m-%d')
-                candles_dict[date_str] = close_val
+                candles_dict[date_str] = cleaned_row
 
             # 5. FINAL OBJECT
             ticker_data = {
