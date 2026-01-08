@@ -59,6 +59,12 @@ def get_technical_analysis_json(tickers):
             df['MACD_Signal'] = macd.macd_signal()
             df['MACD_Hist'] = macd.macd_diff()
 
+            # BB
+            indicator_bb = ta.volatility.BollingerBands(close=df["Close"], window=20, window_dev=2)
+            df['BB_High'] = indicator_bb.bollinger_hband()
+            df['BB_Low'] = indicator_bb.bollinger_lband()
+            df['BB_Mid'] = indicator_bb.bollinger_mavg()
+
             # 3. CALCULATE VOLUME PROFILE (VRVP Approx)
             # We use the last 90 days for the profile to keep it relevant to current price action
             recent_df = df.tail(90).copy()
@@ -115,6 +121,14 @@ def get_technical_analysis_json(tickers):
                 "volume_profile": volume_profile_list,
                 'rsi': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
                         output_df['RSI'].items()},
+                "bollinger_bands": {
+                    "high": {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                             output_df['BB_High'].items()},
+                    "mid": {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                            output_df['BB_Mid'].items()},
+                    "low": {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
+                            output_df['BB_Low'].items()},
+                },
                 'sma20': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
                           output_df['SMA_20'].items()},
                 'sma50': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in

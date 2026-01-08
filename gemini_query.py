@@ -36,7 +36,8 @@ def analyze_stock(json_file_path):
     3. Advise on my Free Cash usage (only buy if trend is confirmed)
     4. use min/max in-day prices not close prices for calculations such as stop loss or buy limit price.
     5. for every buy - give score from 1 to 10 about certainty of the buy based on technical analysis (10 being highest confidence)
-    6. Provide a neat table of actions.
+    6. you can sell partial amount 
+    7. Provide a neat table of actions.
     
     Stock Data JSON:
     {json.dumps(stock_data, indent=2)}

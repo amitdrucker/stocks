@@ -36,13 +36,30 @@ def empty_folders():
 
 def enrich_portfolio(data):
     candidates = ["AMD",
+                  "TSM",
+                  "INTC",
+                  "PLTR",
+                  "AAPL",
+                  "SANM",
                   "AVGO",
+                  "HOOD",
+                  "OKLO",
+                  "ESTC",
+                  "VRT",
                   "MSFT",
                   "SANM",
                   "ORCL",
                   "TSLA",
                   "AMZN",
-                  "META"]
+                  "SEDG",
+                  "COHU",
+                  "COMP",
+                  "META",
+                  "SEDG",
+                  "NNE",
+                  "MP",
+                  "XOM",
+                  "SOFI"]
 
     # 1. Group open orders by symbol
     orders_map = defaultdict(list)
