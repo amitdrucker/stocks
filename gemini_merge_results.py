@@ -48,6 +48,7 @@ Rules:
 - One row per symbol.
 - Action should be like: Buy, Fix Stop Loss, Add Stop Loss, Hold, Sell, Reduce, Close - and include quantity and price if applicable.
 - Output in a text table format.
+- below the output table write: total BUY in $ and total SELL in $
 
 Analyses:
 {merged_content}
