@@ -28,8 +28,9 @@ def analyze_stock(json_file_path):
     # 3. Construct the Prompt
     # We embed the instructions and the JSON data into one clear message
     prompt = f"""
-    I am a swing trader with a 1-month horizon. I check stocks daily at market close.
+    I am a swing trader that does changes on a weekly basis. I check stocks weekly at market close.
     please do technical analysis based on the technical indicators provided in the JSON below following these rules:
+    
     
     1. Audit my current position.
     2. Review my Stop Loss (ensure it covers the full position)
@@ -37,7 +38,8 @@ def analyze_stock(json_file_path):
     4. use min/max in-day prices not close prices for calculations such as stop loss or buy limit price.
     5. for every buy - give score from 1 to 10 about certainty of the buy based on technical analysis (10 being highest confidence)
     6. you can sell partial amount 
-    7. Provide a neat table of actions.
+    7. avoid over-trading
+    8. Provide a neat table of actions.
     
     Stock Data JSON:
     {json.dumps(stock_data, indent=2)}

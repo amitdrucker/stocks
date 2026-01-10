@@ -31,9 +31,8 @@ def get_technical_analysis_json(tickers):
             print(f"Processing {ticker}...")
 
             # 1. FETCH DATA
-            # We fetch 1 year to ensure we have enough data for SMA_200 calculation
-            # even though we only export the last 90 days.
-            df = yf.download(ticker, period="1y", interval="1d", progress=False)
+            # Fetch weekly data for the past 5 years to ensure enough data for calculations
+            df = yf.download(ticker, period="5y", interval="1wk", progress=False)
 
             # Fix for yfinance MultiIndex columns (common in newer versions)
             if isinstance(df.columns, pd.MultiIndex):
@@ -44,10 +43,10 @@ def get_technical_analysis_json(tickers):
                 continue
 
             # 2. CALCULATE INDICATORS
-            # RSI (14)
+            # RSI (14 weeks)
             df['RSI'] = ta.momentum.RSIIndicator(df['Close'], window=14).rsi()
 
-            # SMAs
+            # SMAs (20, 50, 100, 150 weeks)
             df['SMA_20'] = ta.trend.SMAIndicator(df['Close'], window=20).sma_indicator()
             df['SMA_50'] = ta.trend.SMAIndicator(df['Close'], window=50).sma_indicator()
             df['SMA_100'] = ta.trend.SMAIndicator(df['Close'], window=100).sma_indicator()
@@ -66,7 +65,7 @@ def get_technical_analysis_json(tickers):
             df['BB_Mid'] = indicator_bb.bollinger_mavg()
 
             # 3. CALCULATE VOLUME PROFILE (VRVP Approx)
-            # We use the last 90 days for the profile to keep it relevant to current price action
+            # Use the last 90 weeks for the profile to keep it relevant to current price action
             recent_df = df.tail(90).copy()
 
             if recent_df.empty:
@@ -100,10 +99,10 @@ def get_technical_analysis_json(tickers):
                 })
 
             # 4. STRUCTURE DATA
-            # Slice the last 90 candles for the daily data output
+            # Slice the last 90 candles for the weekly data output
             output_df = df.tail(90).copy()
 
-            # Convert daily candles dataframe to a dictionary keyed by Date
+            # Convert weekly candles dataframe to a dictionary keyed by Date
             candles_dict = {}
             for index, row in output_df.iterrows():
                 # Handle potentially missing values (NaN) for JSON compliance
@@ -117,7 +116,7 @@ def get_technical_analysis_json(tickers):
             ticker_data = {
                 "ticker": ticker,
                 "last_updated": datetime.now().isoformat(),
-                "daily_candles": candles_dict,
+                "weekly_candles": candles_dict,
                 "volume_profile": volume_profile_list,
                 'rsi': {idx.strftime('%Y-%m-%d'): (None if pd.isna(val) else float(val)) for idx, val in
                         output_df['RSI'].items()},
