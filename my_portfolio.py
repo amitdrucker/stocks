@@ -11,6 +11,8 @@ if sys.platform == 'win32':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
+
+
 # ==========================================
 
 
@@ -83,3 +85,52 @@ def get_portfolio_json():
         return json.dumps({"error": str(e)})
     finally:
         ib.disconnect()
+
+
+def place_market_order(self, symbol, qty, action='BUY', asset_type='STK', exchange='SMART', currency='USD'):
+    """Places a simple Market Order."""
+    self.connect()
+    contract = Stock(symbol, exchange, currency) if asset_type == 'STK' else Crypto(symbol, exchange, currency)
+    self.ib.qualifyContracts(contract)
+
+    order = MarketOrder(action, qty)
+    trade = self.ib.placeOrder(contract, order)
+    return trade
+
+
+def place_stop_loss(self, symbol, qty, stop_price, action='SELL'):
+    """Places a standalone Stop Loss order."""
+    self.connect()
+    contract = Stock(symbol, 'SMART', 'USD')
+    self.ib.qualifyContracts(contract)
+
+    # Stop order uses auxPrice for the trigger point
+    order = StopOrder(action, qty, stop_price)
+    trade = self.ib.placeOrder(contract, order)
+    return trade
+
+
+def modify_open_order(self, symbol, new_qty=None, new_price=None):
+    """
+    Finds an open stop/limit order for a symbol and updates it.
+    In IB-insync, placing an order with the same OrderId modifies the existing one.
+    """
+    self.connect()
+    self.ib.reqAllOpenOrders()
+
+    for trade in self.ib.openTrades():
+        if trade.contract.symbol == symbol:
+            if new_qty:
+                trade.order.totalQuantity = new_qty
+            if new_price:
+                # For Stop orders, price is in auxPrice. For Limit, it's lmtPrice.
+                if trade.order.orderType == 'STP':
+                    trade.order.auxPrice = new_price
+                elif trade.order.orderType == 'LMT':
+                    trade.order.lmtPrice = new_price
+
+            # Re-submit the modified order object
+            self.ib.placeOrder(trade.contract, trade.order)
+            return f"Modified {symbol} order successfully."
+
+    return f"No open order found for {symbol}."
