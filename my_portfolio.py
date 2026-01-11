@@ -79,6 +79,7 @@ def get_portfolio_json():
             "open_orders": orders
         }
 
+        open('output/portfolio.json', 'w').write(json.dumps(data))
         return data
 
     except Exception as e:
